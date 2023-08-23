@@ -44,6 +44,8 @@ public class LogicScript : MonoBehaviour
     public int playerScore;
     public Text scoreText;
 
+    public GameObject hint1;
+
     //The Start function is used to set everything up before the game starts
     private void Start()
     {
@@ -81,7 +83,8 @@ public class LogicScript : MonoBehaviour
 
         correctAnswer = orderNumber[0]; // talking to the global variable at the top rather than the internal variables of this function
         // let's play the audio of the correct answer in a different function
-        CorrectAnswerAudio();
+       
+        StartCoroutine(WaitBeforePlayingAudio());
 
         // for every other value in the orderNumber list
         // create a new choice object
@@ -103,13 +106,22 @@ public class LogicScript : MonoBehaviour
             int randomChoice = Random.Range(0, choiceContainer.childCount);
             choiceContainer.GetChild(randomChoice).transform.position = choiceLocations[i].transform.position;
             choiceContainer.GetChild(randomChoice).transform.parent = choiceLocations[i].transform;
-        }
+        }        
    }
+
+   IEnumerator WaitBeforePlayingAudio()
+    {
+        // wait a milisecond before playing audio so the new choices are loaded
+        yield return new WaitForSeconds(0.001f);
+        // now we can play audio
+        CorrectAnswerAudio();
+    }
 
     public void CorrectAnswerAudio()
     {
         // play the audio of the correct answer. this plays automatically from SetOrder, but also from the OnClick() function of the PlayAudio button (so it's a public function)
         GameObject correctChoice = GameObject.Find(correctAnswer);
+        Debug.Log(correctChoice);
         correctChoice.GetComponent<AudioSource>().Play();
     }
     public void NextCustomer() // This is called by the OnClick() function of the NextCustomer button (so it's a public function)
@@ -150,5 +162,11 @@ public class LogicScript : MonoBehaviour
         customerGraphic.SetActive(false);
     }
 
-
+    public void Hint1()
+    {
+        // play the audio that is on the hint1 object e.g.
+        hint1.GetComponent<AudioSource>().clip = Resources.Load<AudioClip>(correctAnswer + "_hint1");
+        hint1.GetComponent<AudioSource>().Play();
+        //this will play audio from the resources folder that is labelled like Cigarette_hint1.mp3
+    }
 }
